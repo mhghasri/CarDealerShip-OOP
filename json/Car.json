@@ -1,0 +1,35 @@
+{
+    "100101": {
+        "brand": "Toyota",
+        "model": "LandCruse",
+        "year": 2024,
+        "color": "white",
+        "km": 8000,
+        "plate": "A123",
+        "quantity": 3,
+        "buy_price": 20000,
+        "sell_price": 26000.0
+    },
+    "100102": {
+        "brand": "BMW",
+        "model": "X3",
+        "year": 2021,
+        "color": "black",
+        "km": 4000,
+        "plate": "A1234",
+        "quantity": 2,
+        "buy_price": 17000,
+        "sell_price": 22100.0
+    },
+    "100103": {
+        "brand": "Benz",
+        "model": "Cla",
+        "year": 2018,
+        "color": "yello",
+        "km": 17000,
+        "plate": "B1234",
+        "quantity": 3,
+        "buy_price": 23000,
+        "sell_price": 29900.0
+    }
+}
