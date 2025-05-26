@@ -6,12 +6,12 @@
         "color": "white",
         "km": 8000,
         "plate": "A123",
-        "quantity": 3,
+        "quantity": 7,
         "buy_price": 20000,
         "sell_price": 26000.0
     },
     "100102": {
-        "brand": "BMW",
+        "brand": "Bmw",
         "model": "X3",
         "year": 2021,
         "color": "black",
@@ -25,11 +25,110 @@
         "brand": "Benz",
         "model": "Cla",
         "year": 2018,
-        "color": "yello",
+        "color": "yellow",
         "km": 17000,
         "plate": "B1234",
         "quantity": 3,
         "buy_price": 23000,
         "sell_price": 29900.0
+    },
+    "100104": {
+        "brand": "Toyota",
+        "model": "corola",
+        "year": 2023,
+        "color": "white",
+        "km": 2100,
+        "plate": "C1234",
+        "quantity": 4,
+        "buy_price": 40000,
+        "sell_price": 52000.0
+    },
+    "100105": {
+        "brand": "Bmw",
+        "model": "Z4",
+        "year": 2021,
+        "color": "white",
+        "km": 8100,
+        "plate": "C1234",
+        "quantity": 3,
+        "buy_price": 36000,
+        "sell_price": 46800.0
+    },
+    "100106": {
+        "brand": "Benz",
+        "model": "meybakh",
+        "year": 2025,
+        "color": "white",
+        "km": 18000,
+        "plate": "N1234",
+        "quantity": 1,
+        "buy_price": 59000,
+        "sell_price": 76700.0
+    },
+    "100107": {
+        "brand": "Porsche",
+        "model": "makan",
+        "year": 2017,
+        "color": "white",
+        "km": 10000,
+        "plate": "C1234",
+        "quantity": 2,
+        "buy_price": 80000,
+        "sell_price": 104000.0
+    },
+    "100108": {
+        "brand": "Toyota",
+        "model": "prado",
+        "year": 2020,
+        "color": "black",
+        "km": 0,
+        "plate": "C1234",
+        "quantity": 1.0,
+        "buy_price": 90000,
+        "sell_price": 117000.0
+    },
+    "100109": {
+        "brand": "Ferary",
+        "model": "horse",
+        "year": 1980,
+        "color": "black",
+        "km": 1000,
+        "plate": "C1234",
+        "quantity": 1,
+        "buy_price": 120000,
+        "sell_price": 156000.0
+    },
+    "100110": {
+        "brand": "Toyota",
+        "model": "corola",
+        "year": 2023,
+        "color": "black",
+        "km": 2100,
+        "plate": "C1234",
+        "quantity": 4,
+        "buy_price": 40000,
+        "sell_price": 52000.0
+    },
+    "100111": {
+        "brand": "Bmw",
+        "model": "X6",
+        "year": 2013,
+        "color": "red",
+        "km": 2000,
+        "plate": "W1234",
+        "quantity": 3,
+        "buy_price": 20000,
+        "sell_price": 26000.0
+    },
+    "100112": {
+        "brand": "Saipa",
+        "model": "Quick R",
+        "year": "2024",
+        "color": "white",
+        "km": "10000",
+        "plate": "K1234",
+        "quantity": 2,
+        "buy_price": 1000,
+        "sell_price": 1300.0
     }
 }
