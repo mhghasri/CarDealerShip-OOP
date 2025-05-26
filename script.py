@@ -616,6 +616,43 @@ class Admin(User):
 
 # -------------------- #
 
+    def panel(self):
+        print_color(f"Wellcome admin. '{self.username}' --- '{current_time}'.", "y")
+        while True:
+            print_color("1. car galary\n2. add new car\n3. edit cars\n4. show car dealing list\n5. show balance\n6. show car sorted by color\n7. show car sorted by brand\n8. log out", "y")
+
+            admin_option = input("\nPlease enter your option: ")
+
+            if admin_option in "12345678":
+                
+                if admin_option == "1":
+                    self.show_cars()
+                
+                elif admin_option == "2":
+                    self.add_car()
+                
+                elif admin_option == "3":
+                    self.edit_car()
+                
+                elif admin_option == "4":
+                    self.show_car_dealing_list()
+                
+                elif admin_option == "5":
+                    self.show_balance()
+                
+                elif admin_option == "6":
+                    self.show_cars_sorted_by_color()
+                
+                elif admin_option == "7":
+                    self.show_cars_sorted_by_brand()
+                
+                elif admin_option == "8":
+                    print_color("log out successfully.", "g")
+                    return None
+            else:
+                print_color("Invalid input. Please try again.")
+# -------------------- #
+
     @staticmethod
     def show_cars():
 
@@ -772,16 +809,48 @@ class BasicUser(User):
 
         print_color(f"car id: {car_id} --- brand: {car_choosen.car_brand} --- model: {car_choosen.car_model} --- color: {car_choosen.car_color} --- quantity: {car_choosen.quantity} --- final_price: {amount}.", "c")
 
+# -------------------- #
+
+    def panel(self):
+        pass
+
+# -------------------- #
+
+    def show_all_dealing(self):
+
+        dealing_data = CarDealingList.read_dealings()
+
+        flag = False
+
+        index = 1
+
+        for dealing_id, dealing_info in dealing_data.items():
+
+                if self.username == dealing_info["buyer"]:
+
+                    print_color(f'{index}. deal id: {dealing_id} --- car id: {dealing_info["car_id"]} --- final price: {dealing_info["final_price"]}$ --- time of dealing: {dealing_info["time"]}', "c")
+
+                    print_color(f"Brand: {dealing_info['car_information']['brand']} --- model: {dealing_info['car_information']['model']} --- color: {dealing_info['car_information']['color']} --- year: {dealing_info['car_information']['year']} --- km: {dealing_info['car_information']['km']} --- plate: {dealing_info['car_information']['plate']}", "c")
+
+                    index += 1
+
+                    flag = True
+
+                    print_color("-" * 40, "b")
+
+        if not flag:
+            print_color(f"{self.username} you dont have any dealing.")
+
+# -------------------- #
+
+    def refund(self):
+
+        pass
+
 # --------------------------------------------------------- #
 
 ali = BasicUser("alinorouzi")
 
-mh = Admin("mhghasri")
+ali.show_all_dealing()
 
-mh.show_balance()
-
-username = User.login()
-
-current_user = BasicUser(username)
-
-current_user.show_balance()
+print(ali.username)
