@@ -1,0 +1,26 @@
+{
+    "300301": {
+        "seller": "alinorouzi",
+        "dealing_id": "200202",
+        "time": "2025-05-27 13:06:44",
+        "sell_quantity": 3,
+        "final_refund_price": 3510.0,
+        "profit": 390.0
+    },
+    "300302": {
+        "seller": "hadiahmadi",
+        "dealing_id": "200203",
+        "time": "2025-05-27 13:21:58",
+        "sell_quantity": 1,
+        "final_refund_price": 46800.0,
+        "profit": 5200.0
+    },
+    "300303": {
+        "seller": "hadiahmadi",
+        "dealing_id": "200204",
+        "time": "2025-05-27 13:45:24",
+        "sell_quantity": 1,
+        "final_refund_price": 1170.0,
+        "profit": 130.0
+    }
+}

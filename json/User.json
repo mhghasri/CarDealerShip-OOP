@@ -4,20 +4,27 @@
         "name": "mohammad hossein_ghasri",
         "email": "mhghasri@gmail.com",
         "permission": "admin",
-        "balance": 137400.0
+        "balance": 218520.0
     },
     "alinorouzi": {
         "password": "Alinorouzi@123",
         "name": "ali_norouzi",
         "email": "alinrz@test.com",
         "permission": "user",
-        "balance": 23000.0
+        "balance": 26510.0
     },
     "hadiahmadi": {
         "password": "Hadiahmadi@123",
         "name": "hadi_ahmadi",
         "email": "shd@gmail.com",
         "permission": "user",
-        "balance": 0
+        "balance": 220170.0
+    },
+    "sajjadbolouri": {
+        "password": "Sajjadbolouri@123",
+        "name": "sajjad_bolouri",
+        "email": "sjdblr@gmail.com",
+        "permission": "user",
+        "balance": 0.0
     }
 }

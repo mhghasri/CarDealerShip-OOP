@@ -43,6 +43,9 @@ class ReadWriteData:
         elif path_type == "deal":
             return "./json/CarDealingList.json"
         
+        elif path_type == "refund":
+            return "./json/RefundDealingList.json"
+        
         else:
             return "./json/Unknown.json"
 
@@ -86,6 +89,21 @@ class CarDealingList:
     @staticmethod
     def write_dealings(data, path: str= "deal"):
         ReadWriteData.write(data, path)
+
+# --------------------------------------------------------- #
+
+class RefundDealingList:
+
+    @staticmethod
+    def read_refund(path: str="refund"):
+        data = ReadWriteData.read(path)
+
+        return data
+    
+    @staticmethod
+    def write_refund(data, path: str="refund"):
+        ReadWriteData.write(data, path)
+
 
 # --------------------------------------------------------- #
 
@@ -306,13 +324,13 @@ class User:
         self.username = username
 
         self.all_user = User.read_user()
-        self.user_info = self.all_user[username]
+        self.all_user[username]
 
-        self.password = self.user_info["password"]
-        self.name = self.user_info["name"]
-        self.email = self.user_info["email"]
-        self.permission = self.user_info["permission"]
-        self.balance = self.user_info["balance"]
+        self.password = self.all_user[username]["password"]
+        self.name = self.all_user[username]["name"]
+        self.email = self.all_user[username]["email"]
+        self.permission = self.all_user[username]["permission"]
+        self.balance = self.all_user[username]["balance"]
 
 # -------------------- #
 
@@ -347,7 +365,9 @@ class User:
 # -------------------- #
 
     def show_balance(self):
-        print_color(f"Account: {self.username}. Current balance: '{self.balance}'$.", "g")
+
+        all_data = self.read_user()
+        print_color(f"Account: {self.username}. Current balance: {all_data[self.username]['balance']}$.", "g")
 
 # -------------------- #
 
@@ -518,6 +538,31 @@ class User:
 
 # -------------------- #
 
+    @staticmethod
+    def show_refund_cars(username):
+        refund_data = RefundDealingList.read_refund()
+
+        flag = False
+
+        index = 1
+
+        for refund_id, refund_info in refund_data.items():
+
+            if username == refund_info["seller"]:
+
+                print_color(f"{index}. Refund Id: {refund_id} --- seller: {refund_info['seller']} --- deal id: {refund_info['dealing_id']} --- final refunded price: {refund_info['final_refund_price']}$ --- quantity: {refund_info['sell_quantity']} --- time refunded: {refund_info['time']}.", "m")
+
+                index += 1
+
+                print_color("-" * 40, "b")
+
+                flag = True
+
+        if not flag:
+            print_color("You dont have any refund dealing.")
+
+# -------------------- #
+
 # --------------------------------------------------------- #
 
 class Admin(User):
@@ -619,11 +664,11 @@ class Admin(User):
     def panel(self):
         print_color(f"Wellcome admin. '{self.username}' --- '{current_time}'.", "y")
         while True:
-            print_color("1. car galary\n2. add new car\n3. edit cars\n4. show car dealing list\n5. show balance\n6. show car sorted by color\n7. show car sorted by brand\n8. log out", "y")
+            print_color("1. car galary.\n2. add new car.\n3. edit cars.\n4. show car dealing list.\n5. show balance.\n6. show car sorted by color.\n7. show car sorted by brand.\n8. show refunded list.\n9. log out.", "y")
 
             admin_option = input("\nPlease enter your option: ")
 
-            if admin_option in "12345678":
+            if admin_option in "123456789":
                 
                 if admin_option == "1":
                     self.show_cars()
@@ -645,8 +690,11 @@ class Admin(User):
                 
                 elif admin_option == "7":
                     self.show_cars_sorted_by_brand()
-                
+
                 elif admin_option == "8":
+                    self.show_refund_cars()
+                
+                elif admin_option == "9":
                     print_color("log out successfully.", "g")
                     return None
             else:
@@ -681,6 +729,22 @@ class Admin(User):
         for deal_id, deal_info in dealing_data.items():
 
             print_color(f"{index}. Deal Id: {deal_id} --- buyer: {deal_info['buyer']} --- car Id: {deal_info['car_id']} --- deal_date: {deal_info['time']} --- final price: {deal_info['final_price']}$ --- profit: {deal_info['profit']}.", "y")
+
+            index += 1
+
+            print_color("-" * 40, "b")
+
+# -------------------- #
+
+    @staticmethod
+    def show_refund_cars():
+        refund_data = RefundDealingList.read_refund()
+
+        index = 1
+
+        for refund_id, refund_info in refund_data.items():
+
+            print_color(f"{index}. Refund Id: {refund_id} --- seller: {refund_info['seller']} --- deal id: {refund_info['dealing_id']} --- final refunded price: {refund_info['final_refund_price']}$ --- quantity: {refund_info['sell_quantity']} --- time refunded: {refund_info['time']} --- profit: {refund_info['profit']}.", "y")
 
             index += 1
 
@@ -805,18 +869,13 @@ class BasicUser(User):
 
         CarDealingList.write_dealings(dealing_data)
 
-        print_color(f"you buy successfully new car. current balance: '{self.balance}'$.", "g")
+        print_color(f"you buy successfully new car. current balance: '{self.balance - amount}'$.", "g")
 
         print_color(f"car id: {car_id} --- brand: {car_choosen.car_brand} --- model: {car_choosen.car_model} --- color: {car_choosen.car_color} --- quantity: {car_choosen.quantity} --- final_price: {amount}.", "c")
 
 # -------------------- #
 
-    def panel(self):
-        pass
-
-# -------------------- #
-
-    def show_all_dealing(self):
+    def show_user_dealing(self):
 
         dealing_data = CarDealingList.read_dealings()
 
@@ -824,11 +883,15 @@ class BasicUser(User):
 
         index = 1
 
+        user_deal_id = []
+
         for dealing_id, dealing_info in dealing_data.items():
 
-                if self.username == dealing_info["buyer"]:
+                if self.username == dealing_info["buyer"] and dealing_info["quantity"] > 0:
 
-                    print_color(f'{index}. deal id: {dealing_id} --- car id: {dealing_info["car_id"]} --- final price: {dealing_info["final_price"]}$ --- time of dealing: {dealing_info["time"]}', "c")
+                    user_deal_id.append(dealing_id)
+
+                    print_color(f'{index}. deal id: {dealing_id} --- car id: {dealing_info["car_id"]} --- quantity: {dealing_info["quantity"]} --- final price: {dealing_info["final_price"]}$ --- time of dealing: {dealing_info["time"]}', "c")
 
                     print_color(f"Brand: {dealing_info['car_information']['brand']} --- model: {dealing_info['car_information']['model']} --- color: {dealing_info['car_information']['color']} --- year: {dealing_info['car_information']['year']} --- km: {dealing_info['car_information']['km']} --- plate: {dealing_info['car_information']['plate']}", "c")
 
@@ -840,17 +903,171 @@ class BasicUser(User):
 
         if not flag:
             print_color(f"{self.username} you dont have any dealing.")
+            return False
+
+        return user_deal_id
 
 # -------------------- #
 
     def refund(self):
 
-        pass
+        user_cars = self.show_user_dealing()
+
+        refund_data = RefundDealingList.read_refund()
+
+        dealing_data = CarDealingList.read_dealings()
+
+        car_data = Car.read_car()
+
+
+        if user_cars:
+            
+            print_color("Here you are this list is your dealing.", "c")
+
+
+            while True:
+
+                user_refund_id = input("\nPlease enter your car id for refund: ")
+                
+                if user_refund_id in user_cars:
+
+                    print_color(f"You choose {user_refund_id}.", "g")
+
+
+                    while True:
+
+                        are_you_sure = input("\nAre you sure to refund it? you lost 10% for refund the car. (yes/no): ")
+                        
+                        if are_you_sure in ("yes", "no"):
+                            
+                            if are_you_sure == "yes":
+                                break
+
+                            else:
+                                print_color("refund canceled successfully.", "g")
+                                return False
+
+                        else:
+                            print_color("Invalid input. just ('yes', 'no').")
+
+                    break
+
+                else:
+                    print_color("Invalid input. Please enter valid input.")
+
+            
+            user_dealing_data = dealing_data[user_refund_id]
+
+            
+            while True:
+
+                try: 
+                    quantity = int(input("\nPlease enter quantity of you want: "))
+
+                except ValueError:
+                    print_color("You must enter integer number !")
+
+                if quantity < user_dealing_data["quantity"]:
+
+                    print_color(f"You are funding '{quantity}' of {user_dealing_data['quantity']}.", "g")
+
+                    break
+
+                elif quantity == user_dealing_data["quantity"]:
+
+                    print_color(f"You sold out all car you have with id: {user_refund_id}.", "g")
+
+                    delet_data_flag = True
+
+                    break
+
+
+
+                else:
+                    print_color("You cant refund more than you have. Please focus a bit more.")
+
+
+            one_car_price = user_dealing_data["final_price"] / user_dealing_data["quantity"]
+
+            final_refund_price = (one_car_price * quantity) * 0.9
+
+            refunded_car_id = user_dealing_data["car_id"]
+
+            car_data[refunded_car_id]["quantity"] += quantity 
+
+                
+            dealing_data[user_refund_id]["quantity"] -= quantity
+
+            dealing_data[user_refund_id]["final_price"] = one_car_price * (user_dealing_data["quantity"])
+
+
+            self.change_balance(amount= final_refund_price, mode="sell")
+
+            CarDealingList.write_dealings(dealing_data)
+            Car.write_car(car_data)
+
+            if refund_data :
+                max_id = max([int(cid) for cid in refund_data.keys()])
+                refund_id = str(max_id + 1)
+
+            else:
+                refund_id = "300301"
+
+            refund_data[refund_id] = {
+                "seller" : self.username,
+                "dealing_id" : user_refund_id,
+                "time" : current_time,
+                "sell_quantity" : quantity,
+                "final_refund_price" : final_refund_price,
+                "profit" : one_car_price * quantity * 0.1
+            }
+
+            RefundDealingList.write_refund(refund_data)
+            
+# -------------------- #
+
+    def panel(self):
+        print_color(f"Wellcome user. '{self.username}' --- '{current_time}'.", "c")
+        while True:
+            print_color("1. show galary.\n2. buy new car.\n3. show dealing list.\n4. refund car(s).\n5. show refunded car.\n6. show cars sorted by color.\n7. show cars sorted by brand.\n8. current balance.\n9. charge balance.\n10. log out.", "c")
+
+            user_option = input("\nPlease enter your option: ")
+
+            if user_option in "12345678910":
+                
+                if user_option == "1":
+                    self.show_cars()
+                
+                elif user_option == "2":
+                    self.buy_car()
+                
+                elif user_option == "3":
+                    self.show_user_dealing()
+                
+                elif user_option == "4":
+                    self.refund()
+                
+                elif user_option == "5":
+                    self.show_refund_cars(self.username)
+                
+                elif user_option == "6":
+                    self.show_cars_sorted_by_color()
+                
+                elif user_option == "7":
+                    self.show_cars_sorted_by_brand()
+
+                elif user_option == "8":
+                    self.show_balance()
+
+                elif user_option == "9":
+                    self.charg_balance()
+                
+                elif user_option == "10":
+                    print_color("log out successfully.", "g")
+                    return None
+            else:
+                print_color("Invalid input. Please try again.")
+
+# -------------------- #
 
 # --------------------------------------------------------- #
-
-ali = BasicUser("alinorouzi")
-
-ali.show_all_dealing()
-
-print(ali.username)

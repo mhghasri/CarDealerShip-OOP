@@ -18,8 +18,8 @@
     "200202": {
         "buyer": "alinorouzi",
         "car_id": "100112",
-        "quantity": 8,
-        "final_price": 10400.0,
+        "quantity": 5,
+        "final_price": 6500.0,
         "time": "2025-05-26 17:18:38",
         "car_information": {
             "brand": "Saipa",
@@ -30,5 +30,69 @@
             "year": "2024"
         },
         "profit": 2400.0
+    },
+    "200203": {
+        "buyer": "hadiahmadi",
+        "car_id": "100110",
+        "quantity": 1,
+        "final_price": 52000.0,
+        "time": "2025-05-27 13:21:58",
+        "car_information": {
+            "brand": "Toyota",
+            "model": "corola",
+            "color": "black",
+            "plate": "C1234",
+            "km": 2100,
+            "year": 2023
+        },
+        "profit": 24000.0
+    },
+    "200204": {
+        "buyer": "hadiahmadi",
+        "car_id": "100112",
+        "quantity": 1,
+        "final_price": 1300.0,
+        "time": "2025-05-27 13:42:11",
+        "car_information": {
+            "brand": "Saipa",
+            "model": "Quick R",
+            "color": "white",
+            "plate": "K1234",
+            "km": "10000",
+            "year": "2024"
+        },
+        "profit": 600.0
+    },
+    "200205": {
+        "buyer": "hadiahmadi",
+        "car_id": "100111",
+        "quantity": 1,
+        "final_price": 26000.0,
+        "time": "2025-05-27 13:51:25",
+        "car_information": {
+            "brand": "Bmw",
+            "model": "X6",
+            "color": "red",
+            "plate": "W1234",
+            "km": 2000,
+            "year": 2013
+        },
+        "profit": 6000.0
+    },
+    "200206": {
+        "buyer": "sajjadbolouri",
+        "car_id": "100101",
+        "quantity": 0.0,
+        "final_price": 0.0,
+        "time": "2025-05-27 14:05:16",
+        "car_information": {
+            "brand": "Toyota",
+            "model": "LandCruse",
+            "color": "white",
+            "plate": "A123",
+            "km": 8000,
+            "year": 2024
+        },
+        "profit": 0.0
     }
 }

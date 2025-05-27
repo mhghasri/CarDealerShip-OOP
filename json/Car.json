@@ -6,7 +6,7 @@
         "color": "white",
         "km": 8000,
         "plate": "A123",
-        "quantity": 7,
+        "quantity": 7.0,
         "buy_price": 20000,
         "sell_price": 26000.0
     },
@@ -105,7 +105,7 @@
         "color": "black",
         "km": 2100,
         "plate": "C1234",
-        "quantity": 4,
+        "quantity": 3,
         "buy_price": 40000,
         "sell_price": 52000.0
     },
@@ -116,7 +116,7 @@
         "color": "red",
         "km": 2000,
         "plate": "W1234",
-        "quantity": 3,
+        "quantity": 2,
         "buy_price": 20000,
         "sell_price": 26000.0
     },
@@ -127,7 +127,7 @@
         "color": "white",
         "km": "10000",
         "plate": "K1234",
-        "quantity": 2,
+        "quantity": 4,
         "buy_price": 1000,
         "sell_price": 1300.0
     }
