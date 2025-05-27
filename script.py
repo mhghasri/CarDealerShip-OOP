@@ -27,6 +27,31 @@ def print_color(string, color: str="r"):
 
 # --------------------------------------------------------- #
 
+class MySQLDB:
+
+    def __init__(self, username):
+        self.username = username
+
+        connector = pymysql.connect(host= 'localhost', user= 'root', passwd= '', database= 'CarDealingShip') 
+
+    
+    def cursor(self):
+        pass
+
+    @staticmethod
+    def select():
+        pass
+
+    @staticmethod
+    def creat():
+        pass
+
+    @staticmethod
+    def update():
+        pass
+
+# --------------------------------------------------------- #
+
 class ReadWriteData:
 
     @staticmethod
