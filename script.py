@@ -28,27 +28,52 @@ def print_color(string, color: str="r"):
 # --------------------------------------------------------- #
 
 class MySQLDB:
-
-    def __init__(self, username):
-        self.username = username
-
-        connector = pymysql.connect(host= 'localhost', user= 'root', passwd= '', database= 'CarDealingShip') 
-
     
-    def cursor(self):
-        pass
 
-    @staticmethod
-    def select():
-        pass
+    def __init__(self):
+        
+        self.connection = pymysql.connect(host= 'localhost', user= 'root', passwd= '', database= 'cardealership') 
 
-    @staticmethod
-    def creat():
-        pass
 
-    @staticmethod
-    def update():
-        pass
+    def get_cursor(self):
+        return self.connection.cursor()
+
+
+    def select(self, query, paramas=None):
+
+        cursor = self.get_cursor()
+
+        cursor.execute(query, paramas)    
+
+        result = cursor.fetchall()
+
+        cursor.close()
+
+        return result   
+
+
+    def creat_record(self, query, paramas):
+        cursor = self.get_cursor()
+
+        cursor.execute(query, paramas)
+
+        self.connection.commit()
+
+        cursor.close()
+
+
+    def update_record(self, query, paramas):
+        cursor = self.get_cursor()
+
+        cursor.execute(query, paramas)
+
+        self.connection.commit()
+
+        cursor.close()
+
+
+    def close(self):
+        self.connection.close()
 
 # --------------------------------------------------------- #
 
@@ -348,14 +373,21 @@ class User:
     def __init__(self, username: str):
         self.username = username
 
-        self.all_user = User.read_user()
-        self.all_user[username]
+        user_data = self.select_user()
 
-        self.password = self.all_user[username]["password"]
-        self.name = self.all_user[username]["name"]
-        self.email = self.all_user[username]["email"]
-        self.permission = self.all_user[username]["permission"]
-        self.balance = self.all_user[username]["balance"]
+        user_info = user_data[0]
+
+        self.UserId = user_info[0]
+
+        self.password = user_info[2]
+
+        self.name = user_info[3]
+
+        self.email = user_info[4]
+
+        self.permision = user_info[5]
+
+        self.balance = user_info[6]
 
 # -------------------- #
 
@@ -404,6 +436,16 @@ class User:
         self.change_balance(amount= amount, mode= "charge")
 
         print_color(f"{self.username} you deposite '{amount}'$ successfully. current balance: {self.balance + amount}.", "g")
+
+# -------------------- #
+
+    def select_user(self):
+
+        query = f"select * from users where UserName = '{self.username}'"
+
+        user_data = MySQLDB()
+
+        return user_data.select(query)
 
 # -------------------- #
 
@@ -1096,3 +1138,25 @@ class BasicUser(User):
 # -------------------- #
 
 # --------------------------------------------------------- #
+
+# names = MySQLDB()
+
+# query = f"select * from users"
+
+# data = names.select(query)
+
+# print(data)
+
+# for record in data:
+#     print(f"User id: {record[0]} --- username: {record[1]} --- password: {record[2]} --- name: {record[3]} --- email: {record[4]} --- permision: {record[5]} --- balance: {record[6]}$")
+
+
+mh = User("hadiahmadi")
+
+print(mh.username)
+print(mh.UserId)
+print(mh.password)
+print(mh.name)
+print(mh.email)
+print(mh.permision)
+print(mh.balance)
