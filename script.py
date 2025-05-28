@@ -164,30 +164,54 @@ class Car:
 
     def __init__(self, car_id):
         self.car_id = car_id
-        self.all_cars = Car.read_car()
-        self.car_info = self.all_cars[car_id]
 
-        self.car_brand = self.car_info["brand"]
-        self.car_model = self.car_info["model"]
-        self.car_year = self.car_info["year"]
-        self.car_color = self.car_info["color"]
-        self.car_km = self.car_info["km"]
-        self.car_plate = self.car_info["plate"]
-        self.car_sell_price = self.car_info["sell_price"]
-        self.car_buy_price = self.car_info["buy_price"]
-        self.quantity = self.car_info["quantity"]
+        self.car_information = self.select_choosen_car()
 
+        self.car_brand = self.car_information[1]
+        self.car_model = self.car_information[2]
+        self.car_year = self.car_information[3]
+        self.car_color = self.car_information[4]
+        self.car_km = self.car_information[5]
+        self.car_plate = self.car_information[6]
+        self.quantity = self.car_information[7]
+        self.car_buy_price = self.car_information[8]
+        self.car_sell_price = self.car_information[9]
+
+# -------------------- #
+
+    def select_choosen_car(self):
+
+        query = f"select * from cars where CarId = '{self.car_id}'"
+
+        db = MySQLDB()
+
+        result = db.select(query)
+
+        return result[0]
+
+# -------------------- #
+
+    def update_choosen_car(self, brand, model, year, color, km, plate, quantity, buy_price, sell_price):
+        car_information = self.select_choosen_car()
+
+        query = "update cars set brand = %s, model = %s, year = %s, color = %s, km = %s, plate = %s, quantity = %s, buyPrice = %s, sellPrice = %s where CarId = %s"
+
+        paramas = (brand, model, year, color, km, plate, quantity, buy_price, sell_price, self.car_id)
+
+        db = MySQLDB()
+
+        db.update_record(query, paramas)
+        
 # -------------------- #
 
     def edit_car(self):
 
-        data = Car.read_car()
 
         admin = Admin("mhghasri")
 
         old_amount = self.car_buy_price * self.quantity
         
-        brand = input("\nEnter brand of car: ")
+        brand = input("\nEnter brand of car: ").title()
         model = input("\nEnter model of car: ")
         year = input("\nEnter year of car: ")
         color = input("\nEnter color of car: ")
@@ -197,17 +221,6 @@ class Car:
         buy_price = int(input("\nEnter buy price of car: "))
         sell_price = buy_price * 1.3
 
-        data[self.car_id] = {
-            "brand" : brand.title(),
-            "model" : model,
-            "year" : year,
-            "color" : color,
-            "km" : km,
-            "plate" : plate,
-            "quantity" : quantity,
-            "buy_price" : buy_price,
-            "sell_price" : sell_price
-        }
 
         current_amount = quantity * buy_price
 
@@ -218,9 +231,9 @@ class Car:
 
         if admin.balance >= new_amount:
 
-            Car.write_car(data)
+            self.update_choosen_car(brand, model, year, color, km, plate, quantity, buy_price, sell_price)
 
-            admin.change_balance(amount= new_amount, mode="admin_buy")
+            admin.update_balance(amount= new_amount, mode="admin_buy")
 
             print_color("Car edited successfully.", "g")
 
@@ -237,13 +250,13 @@ class Car:
 
     @classmethod
     def sort_car_color(cls):
-        data = cls.read_car()
+        data = cls.select_all_cars()
 
 
         car_data_color = []
             
-        for car in data.values():
-            car_data_color.append(car["color"])
+        for car in data:
+            car_data_color.append(car[4])
 
         for color in car_data_color:
             cls.car_color.add(color)
@@ -255,7 +268,7 @@ class Car:
     @classmethod
     def sort_car_by_color(cls):
         cls.sort_car_color()
-        car_data = cls.read_car()
+        car_data = cls.select_all_cars()
         
         for color in cls.car_color:
             
@@ -263,25 +276,26 @@ class Car:
 
             print_color(f"{color}", "m")
             
-            for car, car_information in car_data.items():
-                if color == car_information["color"]:
-                    print_color(f'{index}. CarID: {car} --- Car Brand: {car_information["brand"]} --- Car model: {car_information["model"]} --- Car year: {car_information["year"]} --- Car km: {car_information["km"]} --- Car quantity: {car_information["quantity"]} --- Car Price: {car_information["sell_price"]}.', "m")
+            for car_information in car_data:
+                if color == car_information[4]:
+
+                    print_color(f'{index}. CarID: {car_information[0]} --- Car Brand: {car_information[1]} --- Car model: {car_information[2]} --- Car year: {car_information[3]} --- Car km: {car_information[4]} --- Car quantity: {car_information[7]} --- Car Price: {car_information[9]}.', "m")
                     print_color("-" * 40, "b")
                     index += 1
 # -------------------- #
 
     @classmethod
     def sort_car_brand(cls):
-        data = cls.read_car()
+        data = cls.select_all_cars()
 
 
         car_data_brand = []
             
-        for car in data.values():
-            car_data_brand.append(car["brand"])
+        for car in data:
+            car_data_brand.append(car[1])
 
-        for color in car_data_brand:
-            cls.car_brand.add(color)
+        for brand in car_data_brand:
+            cls.car_brand.add(brand)
 
         return cls
 
@@ -290,7 +304,7 @@ class Car:
     @classmethod
     def sort_car_by_brand(cls):
         cls.sort_car_brand()
-        car_data = cls.read_car()
+        car_data = cls.select_all_cars()
         
         for brand in cls.car_brand:
             
@@ -298,9 +312,10 @@ class Car:
 
             print_color(f"{brand}", "m")
             
-            for car, car_information in car_data.items():
-                if brand == car_information["brand"]:
-                    print_color(f'{index}. CarID: {car} --- Car color: {car_information["color"]} --- Car model: {car_information["model"]} --- Car year: {car_information["year"]} --- Car km: {car_information["km"]} --- Car quantity: {car_information["quantity"]} --- Car Price: {car_information["sell_price"]}.', "m")
+            for car_information in car_data:
+                if brand == car_information[1]:
+
+                    print_color(f'{index}. CarID: {car_information[0]} --- Car model: {car_information[2]} --- color: {car_information[4]} --- Car year: {car_information[3]} --- Car km: {car_information[4]} --- Car quantity: {car_information[7]} --- Car Price: {car_information[9]}.', "m")
                     print_color("-" * 40, "b")
                     index += 1
 
@@ -363,6 +378,17 @@ class Car:
                 index += 1
 
                 print_color("-" * 40, "b")
+
+# -------------------- #
+
+    @staticmethod
+    def select_all_cars():
+
+        query = "select * from cars"
+
+        db = MySQLDB()
+
+        return db.select(query)
 
 # -------------------- #
 
@@ -443,9 +469,13 @@ class User:
 
         query = f"select * from users where UserName = '{self.username}'"
 
-        user_data = MySQLDB()
+        db = MySQLDB()
 
-        return user_data.select(query)
+        result = db.select(query)
+
+        db.close()
+
+        return result
 
 # -------------------- #
 
@@ -460,29 +490,56 @@ class User:
 
 # -------------------- #
 
-    def update_balance(self):
+    def update_balance(self, amount: int, mode: str="buy", admin: str="mhghasri"):
 
-        user_data = self.select_all_user()
+        user_data = self.select_choosen_user(self.username)
 
-        user_information = user_data[0]
+        admin_data = self.select_choosen_user("mhghasri")
 
-        current_balance = user_information[6]
+        user_balance  = user_data[6]
 
-        print_color(f"your current balance is '{user_information[6]}'$.", "g")
+        admin_balance = admin_data[6]
+    
+    
+        if mode == "buy":
+            user_balance -= amount
 
-        amount = int(input("\nPlease enter your amount of you want to deposit: "))
+            admin_balance += amount
 
-        amount += current_balance
+        elif mode == "charge":
+            user_balance += amount
 
-        user = MySQLDB()
 
-        query = f"update users set balance = %s where username = %s"
+        elif mode == "sell":
+            user_balance += amount
 
-        paramas = (amount, self.username)
+            admin_balance -= amount
 
-        user.update_record(query, paramas)
+        elif mode == "admin_buy":
 
-        print_color(f"Your deposit successfully compelete. current balance: '{amount}'$.", "g")
+            admin_balance -= amount
+
+
+        else:
+            raise ValueError("Invalid input for mode in User.change_balance.")
+        
+        db = MySQLDB()
+
+        user_query = "update users set Balance = %s where UserName = %s"
+
+        user_params = (user_balance, self.username)
+
+        db.update_record(user_query, user_params)
+
+
+        if mode in ("buy", "sell", "admin_buy"):
+            admin_query = "update users set balance = %s where username = %s"
+
+            admin_params = (admin_balance, admin)
+
+            db.update_record(admin_query, admin_params)
+
+        db.close()
 
 # -------------------- #
 
@@ -1210,20 +1267,7 @@ class BasicUser(User):
 
 # --------------------------------------------------------- #
 
-# names = MySQLDB()
 
-# query = f"select * from users"
+bmw = Car(100102)
 
-# data = names.select(query)
-
-# print(data)
-
-# for record in data:
-#     print(f"User id: {record[0]} --- username: {record[1]} --- password: {record[2]} --- name: {record[3]} --- email: {record[4]} --- permision: {record[5]} --- balance: {record[6]}$")
-
-
-sajjad = BasicUser("sajjadbolouri")
-
-sajjad.current_balance()
-
-print(sajjad.permision)
+bmw.sort_car_by_brand()
