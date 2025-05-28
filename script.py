@@ -373,7 +373,7 @@ class User:
     def __init__(self, username: str):
         self.username = username
 
-        user_data = self.select_user()
+        user_data = self.select_all_user()
 
         user_info = user_data[0]
 
@@ -439,13 +439,85 @@ class User:
 
 # -------------------- #
 
-    def select_user(self):
+    def select_all_user(self):
 
         query = f"select * from users where UserName = '{self.username}'"
 
         user_data = MySQLDB()
 
         return user_data.select(query)
+
+# -------------------- #
+
+    def current_balance(self):
+        user_data = self.select_all_user()
+
+        user_information = user_data[0]
+
+        current_balance = user_information[6]
+
+        print_color(f"Your current balance is: '{current_balance}'$.", "g")
+
+# -------------------- #
+
+    def update_balance(self):
+
+        user_data = self.select_all_user()
+
+        user_information = user_data[0]
+
+        current_balance = user_information[6]
+
+        print_color(f"your current balance is '{user_information[6]}'$.", "g")
+
+        amount = int(input("\nPlease enter your amount of you want to deposit: "))
+
+        amount += current_balance
+
+        user = MySQLDB()
+
+        query = f"update users set balance = %s where username = %s"
+
+        paramas = (amount, self.username)
+
+        user.update_record(query, paramas)
+
+        print_color(f"Your deposit successfully compelete. current balance: '{amount}'$.", "g")
+
+# -------------------- #
+
+    @staticmethod
+    def select_choosen_user(username):
+
+        query = f"select * from users where UserName = '{username}'"
+
+        db = MySQLDB()
+
+        data = db.select(query)
+
+        return data[0]
+
+# -------------------- #
+
+    @staticmethod
+    def find_username(username):
+        query = f"select * from users where username = '{username}'"
+
+        db = MySQLDB()
+
+        return db.select(query)
+
+# -------------------- #
+    
+    @staticmethod
+    def create_user(username, password, fname, lname, email):
+        query = "insert into users (UserName, Password, Name, Email) values (%s, %s, %s, %s)"
+
+        paramas = (username, password, f"{fname} {lname}", email)
+
+        db = MySQLDB()
+
+        db.creat_record(query, paramas)
 
 # -------------------- #
 
@@ -466,17 +538,21 @@ class User:
     @staticmethod
     def add_user():
 
-        all_user = User.read_user()
 
         while True:
 
             username = input("\nPlease enter your user name: ")
+            
+            selected_username = User.find_username(username)
 
-            if username not in all_user.keys():
+            if not selected_username:
+
                 print_color(f"Wellcome dear {username}.", "g")
                 break
 
+            
             else:
+
                 print_color("This user name already exist. please choose another user name.")
 
             
@@ -501,15 +577,7 @@ class User:
 
         email = input("\nPlease enter your email: ")
 
-        all_user[username] = {
-            "password" : password,
-            "name" : f"{fname}_{lname}",
-            "email" : email,
-            "permission" : "user",
-            "balance" : 0
-        }
-
-        User.write_user(data= all_user)
+        User.create_user(username, password, fname, lname, email)
 
 # -------------------- #
 
@@ -546,13 +614,14 @@ class User:
 
     @staticmethod
     def login():
-        user_data = User.read_user()
 
         while True:
 
             username = input("\nEnter your user name: ")
 
-            if username in user_data.keys():
+            find_username = User.find_username(username)
+            
+            if find_username:
                 print_color(f"Wellcome back dear {username}.", "g")
                 break
 
@@ -560,10 +629,12 @@ class User:
                 print_color("Invalid user name. please try again.")
 
 
+        user_data = User.select_choosen_user(username)
+
         for numebr in range (3, 0, -1):
             password = input(f"\nEnter your password {username}: ")
 
-            if password == user_data[username]["password"]:
+            if password == user_data[2]:
                 print_color(f"Login successfully. User name: {username} --- Password: {password}", "g")
                 return username
 
@@ -1151,12 +1222,8 @@ class BasicUser(User):
 #     print(f"User id: {record[0]} --- username: {record[1]} --- password: {record[2]} --- name: {record[3]} --- email: {record[4]} --- permision: {record[5]} --- balance: {record[6]}$")
 
 
-mh = User("hadiahmadi")
+sajjad = BasicUser("sajjadbolouri")
 
-print(mh.username)
-print(mh.UserId)
-print(mh.password)
-print(mh.name)
-print(mh.email)
-print(mh.permision)
-print(mh.balance)
+sajjad.current_balance()
+
+print(sajjad.permision)
