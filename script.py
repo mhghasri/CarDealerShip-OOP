@@ -131,27 +131,71 @@ class CarDealingList:
 # -------------------- #
 
     @staticmethod
+    def show_selected_deal(user_id):
+        
+        dealing_data = CarDealingList.select_choosen_deal(user_id)
+
+        car_data = Car.select_all_cars()
+
+
+        if dealing_data:
+            print_color("Your car buying is:", "c")
+
+            for index, car_info in enumerate(dealing_data, start=1):
+
+                car_id = car_info[2]
+
+                car = Car(car_id)
+
+                print_color(f"{index}. Dealing Id: {car_info[0]} --- Car Id: {car_info[2]} --- quantiy: {car_info[3]} --- Time: {car_info[4]} --- profit: {car_info[5]}", "m")
+
+                print_color(f"brand: {car.car_brand} --- model: {car.car_model} --- color: {car.car_color} --- quantity: {car.quantity}", "c")
+
+                print_color("-" * 40, "b")
+
+        else:
+            print_color("You dont have any car.")
+
+# -------------------- #
+
+    @staticmethod
+    def show_all_deal():
+        data = CarDealingList.select_all_deal()
+
+        for index, car_info in enumerate(data, start= 1):
+
+            print_color(f"{index}. Dealing Id: {car_info[0]} --- Buyer_Id: {car_info[1]} --- Car Id: {car_info[2]} --- quantiy: {car_info[3]} --- Time: {car_info[4]} --- profit: {car_info[5]}", "m")
+
+            print_color("-" * 40, "b")
+            
+
+# -------------------- #
+
+    @staticmethod
     def select_all_deal():
         query = "select * from car_dealing_lists"
 
         db = MySQLDB()
 
-        db.select(query)
+        result = db.select(query)
 
         db.close()
+
+        return result
 
 # -------------------- #
 
     @staticmethod
-    def select_choosen_deal(buyer):
-        query = "select * from cardealership where Buyer = %s"
+    def select_choosen_deal(user_id):
+        query = "select * from car_dealing_lists where Buyer = %s"
 
-        paramas = buyer
+        paramas = user_id
 
         db = MySQLDB()
 
-        db.select(query=query, paramas=paramas)
-
+        result = db.select(query=query, paramas=paramas)
+        
+        return result
 # -------------------- #
 
     @staticmethod
@@ -1231,4 +1275,6 @@ mh = Admin("mhghasri")
 
 # ali.buy_car()
 
-mh.edit_car()
+# CarDealingList.show_all_deal()
+
+CarDealingList.show_selected_deal(1)
