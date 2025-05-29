@@ -128,6 +128,47 @@ class ReadWriteData:
 
 class CarDealingList:
 
+# -------------------- #
+
+    @staticmethod
+    def select_all_deal():
+        query = "select * from car_dealing_lists"
+
+        db = MySQLDB()
+
+        db.select(query)
+
+        db.close()
+
+# -------------------- #
+
+    @staticmethod
+    def select_choosen_deal(buyer):
+        query = "select * from cardealership where Buyer = %s"
+
+        paramas = buyer
+
+        db = MySQLDB()
+
+        db.select(query=query, paramas=paramas)
+
+# -------------------- #
+
+    @staticmethod
+    def create_new_deal(buyer, carid, quantity, final_price, profit):
+
+        query = "insert into car_dealing_lists (Buyer, CarId, Quantity, FinalPrice, Profit) values (%s, %s, %s, %s, %s)"
+
+        paramas = (buyer, carid, quantity, final_price, profit)
+
+        db = MySQLDB()
+
+        db.creat_record(query, paramas)
+
+        db.close()
+
+# -------------------- #
+
     @staticmethod
     def read_dealings(path: str="deal"):
         data = ReadWriteData.read(path)
@@ -265,6 +306,21 @@ class Car:
     
 # -------------------- #
 
+    @staticmethod
+    def create_new_car_record(brand, model, year, color, km, plate, quantity, buy_price, sell_price):
+
+        query = "insert into cars (brand, model, year, color, km, plate, quantity, buyprice, sellprice) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+        paramas = (brand, model, year, color, km, plate, quantity, buy_price, sell_price)
+
+        db = MySQLDB()
+
+        db.creat_record(query, paramas)
+
+        db.close()
+
+# -------------------- #
+
     @classmethod
     def sort_car_by_color(cls):
         cls.sort_car_color()
@@ -365,15 +421,15 @@ class Car:
 
     staticmethod
     def show_cars():
-        data = Car.read_car()
+        data = Car.select_all_cars()
 
         index = 1
 
-        for car_id, car_info in data.items():
+        for car_info in data:
 
-            if car_info["quantity"] > 0:
+            if car_info[7] > 0:
 
-                print_color(f"{index}. Car brand: {car_id} --- brand: {car_info['brand']} --- model: {car_info['model']} --- color: {car_info['color']} --- year: {car_info['year']} --- quantity: {car_info['quantity']} --- price: {car_info['sell_price']}", "m")
+                print_color(f"{index}. Car ID: {car_info[0]} --- brand: {car_info[1]} --- model: {car_info[2]} --- color: {car_info[5]} --- year: {car_info[4]} --- plate: {car_info[6]} --- quantity: {car_info[7]} --- sell_price: '{car_info[9]}'$.", "m")
 
                 index += 1
 
@@ -768,7 +824,7 @@ class Admin(User):
 
     def add_car(self):
         
-        brand = input("\nPlease enter car brand: ")
+        brand = input("\nPlease enter car brand: ").title()
 
         model = input(f"\nPlease enter model of {brand}: ")
 
@@ -783,6 +839,8 @@ class Admin(User):
         buy_price = int(input(f"\nPlease enter a buy price: "))
 
         quantity = int(input(f"\nPlease enter quantity of you want add: "))
+
+        sell_price = buy_price * 1.3
 
         amount = quantity * buy_price
 
@@ -827,8 +885,8 @@ class Admin(User):
 
             
 
-        Car.add_car(brand, model, year, color, km, plate, buy_price, quantity)
-        self.change_balance(amount, mode="admin_buy")
+        Car.create_new_car_record(brand, model, year, color, km, plate, quantity, buy_price, sell_price)
+        self.update_balance(amount= amount, mode="admin_buy")
 
 # -------------------- #
 
@@ -901,13 +959,13 @@ class Admin(User):
 
         print_color(f"This is quantity of Mh galery.", "y")
         
-        car_data = Car.read_car()
+        car_data = Car.select_all_cars()
 
         index = 1
 
-        for car_id, car_info in car_data.items():
+        for car_info in car_data:
 
-            print_color(f"{index}. Car brand: {car_id} --- brand: {car_info['brand']} --- model: {car_info['model']} --- color: {car_info['color']} --- year: {car_info['year']} --- quantity: {car_info['quantity']} --- sell_price: {car_info['sell_price']} --- buy_price: {car_info['buy_price']}", "m")
+            print_color(f"{index}. Car ID: {car_info[0]} --- brand: {car_info[1]} --- model: {car_info[2]} --- color: {car_info[5]} --- year: {car_info[4]} --- plate: {car_info[6]} --- quantity: {car_info[7]} --- sell_price: '{car_info[9]}'$ --- buy_price: {car_info[8]}$.", "m")
 
             index += 1
 
@@ -956,20 +1014,18 @@ class BasicUser(User):
 
     def buy_car(self):
 
-        car_data = Car.read_car()
-
-        dealing_data = CarDealingList.read_dealings()
-
-        print_color(f"Dear {self.username}Wellcome to buying car.", "c")
+        print_color(f"Dear {self.username}. Wellcome to buying car.", "c")
 
         self.show_cars()
 
         while True:
             car_id = input("\nPlease enter car id for buying: ")
 
-            if car_id in car_data.keys():
+                
+                
+            try:
 
-                car_choosen = Car(car_id)
+                car_choosen = Car(int(car_id))
                 
                 print_color("You choose this car: ", "c")
 
@@ -977,7 +1033,7 @@ class BasicUser(User):
 
                 break                
 
-            else:
+            except Exception:
                 print_color("This Id is not exist. Please enter valid id.")
 
 
@@ -1027,42 +1083,16 @@ class BasicUser(User):
                     
                     print_color("Invalid input.")
 
-        self.change_balance(amount= amount, mode="buy")
+        self.update_balance(amount= amount, mode="buy")
 
-        car_data[car_id]["quantity"] -= quantity
+        car_choosen.quantity -= quantity
 
 
         profit = amount - (quantity * car_choosen.car_buy_price)
 
+        car_choosen.update_choosen_car(car_choosen.car_brand, car_choosen.car_model, car_choosen.car_year, car_choosen.car_color, car_choosen.car_km, car_choosen.car_plate, car_choosen.quantity, car_choosen.car_buy_price, car_choosen.car_sell_price)
 
-        if dealing_data:
-            max_id = max([int(cid) for cid in dealing_data.keys()])
-            dealing_id = str(max_id + 1)
-
-        else:
-            dealing_data = "200202"
-
-        dealing_data[dealing_id] = {
-            "buyer" : self.username,
-            "car_id" : car_id,
-            "quantity" : quantity,
-            "final_price" : amount,
-            "time" : current_time,
-            "car_information" : {
-                "brand" : car_choosen.car_brand,
-                "model" : car_choosen.car_model,
-                "color" : car_choosen.car_color,
-                "plate" : car_choosen.car_plate,
-                "km" : car_choosen.car_km,
-                "year" : car_choosen.car_year
-            },
-            "profit" : profit
-        }
-
-                        
-        car_choosen.write_car(car_data)
-
-        CarDealingList.write_dealings(dealing_data)
+        CarDealingList.create_new_deal(self.UserId, car_choosen.car_id, quantity, amount, profit)
 
         print_color(f"you buy successfully new car. current balance: '{self.balance - amount}'$.", "g")
 
@@ -1268,6 +1298,14 @@ class BasicUser(User):
 # --------------------------------------------------------- #
 
 
-bmw = Car(100102)
+# bmw = Car(100104)
 
-bmw.sort_car_by_brand()
+# bmw.sort_car_by_brand()
+
+# mh = Admin("mhghasri")
+
+# mh.show_cars()
+
+ali = BasicUser("alinorouzi")
+
+ali.buy_car()
