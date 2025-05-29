@@ -233,7 +233,6 @@ class Car:
 # -------------------- #
 
     def update_choosen_car(self, brand, model, year, color, km, plate, quantity, buy_price, sell_price):
-        car_information = self.select_choosen_car()
 
         query = "update cars set brand = %s, model = %s, year = %s, color = %s, km = %s, plate = %s, quantity = %s, buyPrice = %s, sellPrice = %s where CarId = %s"
 
@@ -375,19 +374,6 @@ class Car:
                     print_color("-" * 40, "b")
                     index += 1
 
-# -------------------- #
-
-    @staticmethod
-    def read_car(path: str="car"):
-        data = ReadWriteData.read(path)
-
-        return data
-
-# -------------------- #
-
-    @staticmethod
-    def write_car(data, path: str="car"):
-        ReadWriteData.write(data, path)
 
 # -------------------- #
 
@@ -469,57 +455,10 @@ class User:
 
         self.permision = user_info[5]
 
-        self.balance = user_info[6]
-
-# -------------------- #
-
-    def change_balance(self, amount: int, mode: str="buy", admin: str="mhghasri"):
-        
-        user_data = User.read_user()
-
-        if mode == "buy":
-            user_data[self.username]["balance"] -= amount
-
-            user_data[admin]["balance"] += amount
-
-        elif mode == "charge":
-            user_data[self.username]["balance"] += amount
-
-
-        elif mode == "sell":
-            user_data[self.username]["balance"] += amount
-
-            user_data[admin]["balance"] -= amount
-
-        elif mode == "admin_buy":
-
-            user_data[admin]["balance"] -= amount
-
-
-        else:
-            raise ValueError("Invalid input for mode in User.change_balance.")
-
-        User.write_user(user_data)        
+        self.balance = user_info[6]     
         
 # -------------------- #
 
-    def show_balance(self):
-
-        all_data = self.read_user()
-        print_color(f"Account: {self.username}. Current balance: {all_data[self.username]['balance']}$.", "g")
-
-# -------------------- #
-
-    def charg_balance(self):
-
-        amount = int(input("\nPlease enter amount of money for deposite: "))
-
-
-        self.change_balance(amount= amount, mode= "charge")
-
-        print_color(f"{self.username} you deposite '{amount}'$ successfully. current balance: {self.balance + amount}.", "g")
-
-# -------------------- #
 
     def select_all_user(self):
 
@@ -631,21 +570,6 @@ class User:
         db = MySQLDB()
 
         db.creat_record(query, paramas)
-
-# -------------------- #
-
-    @staticmethod
-    def read_user(path: str="user"):
-        
-        data = ReadWriteData.read(path)
-
-        return data
-
-# -------------------- #
-
-    @staticmethod
-    def write_user(data, path: str="user"):
-        ReadWriteData.write(data, path)
 
 # -------------------- #
     @staticmethod
@@ -761,12 +685,12 @@ class User:
 # -------------------- #
     @staticmethod
     def admin_or_user(username):
-        data = User.read_user()
+        data = User.select_choosen_user(username)
 
-        if data[username]["permission"] == "admin":
+        if data[5]== "admin":
             return "admin"
 
-        elif data[username]["permission"] == "user":
+        elif data[5] == "user":
             return "user"
 
 # -------------------- #
@@ -891,26 +815,23 @@ class Admin(User):
 # -------------------- #
 
     def edit_car(self):
-
-        car_data = Car.read_car()
         
-        Car.show_cars()
-
-        print_color(f"Dear {self.username} This are all car galery.", "y")
-
+        self.show_cars()
 
         while True:
-            edit_option = input("\nPlease enter Car ID for editing: ")
-
-            if edit_option in car_data.keys():
                 
-                car = Car(edit_option)
-                car.edit_car()
+            try:
+                edit_option = input("\nPlease enter Car ID for editing: ")
 
-                break
+                car = Car(int(edit_option))
+
+            except Exception:
+                print_color("Wrong input please try again.")
 
             else:
-                print_color("Wrong input please try again.")
+
+                car.edit_car()
+                break
 
 # -------------------- #
 
@@ -965,7 +886,7 @@ class Admin(User):
 
         for car_info in car_data:
 
-            print_color(f"{index}. Car ID: {car_info[0]} --- brand: {car_info[1]} --- model: {car_info[2]} --- color: {car_info[5]} --- year: {car_info[4]} --- plate: {car_info[6]} --- quantity: {car_info[7]} --- sell_price: '{car_info[9]}'$ --- buy_price: {car_info[8]}$.", "m")
+            print_color(f"{index}. Car ID: {car_info[0]} --- brand: {car_info[1]} --- model: {car_info[2]} --- color: {car_info[4]} --- year: {car_info[3]} --- plate: {car_info[6]} --- quantity: {car_info[7]} --- sell_price: '{car_info[9]}'$ --- buy_price: {car_info[8]}$.", "m")
 
             index += 1
 
@@ -1302,10 +1223,12 @@ class BasicUser(User):
 
 # bmw.sort_car_by_brand()
 
-# mh = Admin("mhghasri")
+mh = Admin("mhghasri")
 
 # mh.show_cars()
 
-ali = BasicUser("alinorouzi")
+# ali = BasicUser("alinorouzi")
 
-ali.buy_car()
+# ali.buy_car()
+
+mh.edit_car()
