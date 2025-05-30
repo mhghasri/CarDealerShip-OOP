@@ -3,29 +3,6 @@ from pakages import *
 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 # --------------------------------------------------------- #
-def print_color(string, color: str="r"):
-    if color == "r":
-        print(Fore.RED + f"\n{string}\n" + Fore.RESET)
-
-    elif color == "b":
-        print(Fore.BLUE + f"\n{string}\n" + Fore.RESET)
-    
-    elif color == "g":
-        print(Fore.GREEN + f"\n{string}\n" + Fore.RESET)
-    
-    elif color == "m":
-        print(Fore.MAGENTA + f"\n{string}\n" + Fore.RESET)
-
-    elif color == "y":
-        print(Fore.YELLOW + f"\n{string}\n" + Fore.RESET)
-    
-    elif color == "c":
-        print(Fore.CYAN + f"\n{string}\n" + Fore.RESET)
-    
-    else:
-        print (f"\n{string}\n")
-
-# --------------------------------------------------------- #
 
 class MySQLDB:
     
@@ -127,6 +104,23 @@ class ReadWriteData:
 # --------------------------------------------------------- #
 
 class CarDealingList:
+
+# -------------------- #
+
+    @staticmethod
+    def show_selected_deal_by_id(deal_id):
+
+        quert = "select * from car_dealing_lists where dealingid = %s"
+
+        paramas = (deal_id)
+
+        db = MySQLDB()
+
+        restlt = db.select(quert, paramas)
+
+        db.close()
+
+        return restlt[0]
 
 # -------------------- #
 
