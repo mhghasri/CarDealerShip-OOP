@@ -135,9 +135,6 @@ class CarDealingList:
         
         dealing_data = CarDealingList.select_choosen_deal(user_id)
 
-        car_data = Car.select_all_cars()
-
-
         if dealing_data:
             print_color("Your car buying is:", "c")
 
@@ -147,9 +144,9 @@ class CarDealingList:
 
                 car = Car(car_id)
 
-                print_color(f"{index}. Dealing Id: {car_info[0]} --- Car Id: {car_info[2]} --- quantiy: {car_info[3]} --- Time: {car_info[4]} --- profit: {car_info[5]}", "m")
+                print_color(f"{index}. Dealing Id: {car_info[0]} --- Car Id: {car_info[2]} --- quantiy: {car_info[3]} --- final price: {car_info[4]} --- Time: {car_info[5]}.", "m")
 
-                print_color(f"brand: {car.car_brand} --- model: {car.car_model} --- color: {car.car_color} --- quantity: {car.quantity}", "c")
+                print_color(f"brand: {car.car_brand} --- model: {car.car_model} --- color: {car.car_color} --- price: '{car.car_sell_price}'$.", "c")
 
                 print_color("-" * 40, "b")
 
@@ -164,7 +161,13 @@ class CarDealingList:
 
         for index, car_info in enumerate(data, start= 1):
 
-            print_color(f"{index}. Dealing Id: {car_info[0]} --- Buyer_Id: {car_info[1]} --- Car Id: {car_info[2]} --- quantiy: {car_info[3]} --- Time: {car_info[4]} --- profit: {car_info[5]}", "m")
+            buyer = User.select_user_by_id(car_info[1])
+
+            car = Car(car_info[2])
+
+            print_color(f"{index}. Dealing Id: {car_info[0]} --- Buyer_Id: {car_info[1]} --- Car Id: {car_info[2]} --- quantiy: {car_info[3]} --- final price: {car_info[4]} --- Time: {car_info[5]} --- profit: {car_info[6]}", "m")
+
+            print_color(f"Buyer: {buyer[1]} --- car brand: {car.car_brand} --- car model: {car.car_model} --- car color: {car.car_color}.", "y")
 
             print_color("-" * 40, "b")
             
@@ -503,6 +506,10 @@ class User:
         
 # -------------------- #
 
+    def show_dealing_list(self):
+        CarDealingList.show_selected_deal(self.UserId)
+
+# -------------------- #
 
     def select_all_user(self):
 
@@ -579,6 +586,21 @@ class User:
             db.update_record(admin_query, admin_params)
 
         db.close()
+
+# -------------------- #
+
+    @staticmethod
+    def select_user_by_id(user_id):
+
+        query = "select * from users where userid = %s"
+
+        paramas = (user_id)
+
+        db = MySQLDB()
+
+        result = db.select(query, paramas)
+
+        return result[0] 
 
 # -------------------- #
 
@@ -787,6 +809,11 @@ class User:
 class Admin(User):
     def __init__(self, username):
         super().__init__(username)
+
+# -------------------- #
+
+    def show_dealing_list(self):
+        CarDealingList.show_all_deal()
 
 # -------------------- #
 
@@ -1271,10 +1298,10 @@ mh = Admin("mhghasri")
 
 # mh.show_cars()
 
-# ali = BasicUser("alinorouzi")
+ali = BasicUser("alinorouzi")
 
 # ali.buy_car()
 
 # CarDealingList.show_all_deal()
 
-CarDealingList.show_selected_deal(1)
+# CarDealingList.show_selected_deal(2)
