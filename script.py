@@ -108,6 +108,21 @@ class CarDealingList:
 # -------------------- #
 
     @staticmethod
+    def update_dealing(dealing_id, quantity, final_price):
+
+        query = "update car_dealing_lists set quantity = %s, finalprice = %s where dealingID = %s"
+
+        paramas = (quantity, final_price, dealing_id)
+
+        db = MySQLDB()
+
+        db.update_record(query, paramas)
+
+        db.close()
+
+# -------------------- #
+
+    @staticmethod
     def show_selected_deal_by_id(deal_id):
 
         quert = "select * from car_dealing_lists where dealingid = %s"
@@ -134,15 +149,17 @@ class CarDealingList:
 
             for index, car_info in enumerate(dealing_data, start=1):
 
-                car_id = car_info[2]
+                if car_info[3] > 0:
 
-                car = Car(car_id)
+                    car_id = car_info[2]
 
-                print_color(f"{index}. Dealing Id: {car_info[0]} --- Car Id: {car_info[2]} --- quantiy: {car_info[3]} --- final price: {car_info[4]} --- Time: {car_info[5]}.", "m")
+                    car = Car(car_id)
 
-                print_color(f"brand: {car.car_brand} --- model: {car.car_model} --- color: {car.car_color} --- price: '{car.car_sell_price}'$.", "c")
+                    print_color(f"{index}. Dealing Id: {car_info[0]} --- Car Id: {car_info[2]} --- quantiy: {car_info[3]} --- final price: {car_info[4]} --- Time: {car_info[5]}.", "m")
 
-                print_color("-" * 40, "b")
+                    print_color(f"brand: {car.car_brand} --- model: {car.car_model} --- color: {car.car_color} --- price: '{car.car_sell_price}'$.", "c")
+
+                    print_color("-" * 40, "b")
 
         else:
             print_color("You dont have any car.")
@@ -226,15 +243,110 @@ class CarDealingList:
 
 class RefundDealingList:
 
+# -------------------- #
+
+    @staticmethod
+    def select_all_refunding():
+
+        query = "select * from refundlists"
+
+        db = MySQLDB()
+
+        reslut = db.select(query)
+
+        db.close()
+
+        return reslut
+
+# -------------------- #
+
+    @staticmethod
+    def select_choosen_refund(user_id):
+
+        query = "select * from refundlists where SellerId = %s"
+
+        paramas = (user_id)
+
+        db = MySQLDB()
+
+        reslut = db.select(query, paramas)
+
+        db.close()
+
+        return reslut
+
+# -------------------- #
+
+    @staticmethod
+    def show_selected_refunding(user_id):
+        refund_data = RefundDealingList.select_choosen_refund(user_id)
+
+        for index, info in enumerate(refund_data, start= 1):
+
+            user_object = User.create_user_by_id(info[1])
+
+            deal_object = CarDealingList.show_selected_deal_by_id(info[2])
+
+            car_object = Car(deal_object[2])
+
+            print_color(f"{index}. refund id: {info[0]} --- seller: {user_object.username} --- dealing id: {info[2]} --- sell quantity: {info[3]} --- final refund price: {info[4]}.", "m")
+
+            print_color(f"car brad: {car_object.car_brand} --- model: {car_object.car_model} --- deal time: {deal_object[5]}", "c")
+
+            print_color("-" * 40, "b")
+
+
+# -------------------- #
+
+    @staticmethod
+    def creat_new_refunding(seller_id, dealing_id, sell_quantity, final_refunding_price, profit):
+
+        query = "insert into refundlists (SellerID, DealingID, sellQuantity, FinalRefundPrice, Profit) values (%s, %s, %s, %s, %s)"
+
+        paramas = (seller_id, dealing_id, sell_quantity, final_refunding_price, profit)
+
+        db = MySQLDB()
+
+        db.creat_record(query, paramas)
+
+        db.close
+
+# -------------------- #
+
+    @staticmethod
+    def show_all_refunding():
+
+        refund_data = RefundDealingList.select_all_refunding()
+
+        for index, info in enumerate(refund_data, start= 1):
+
+            user_object = User.create_user_by_id(info[1])
+
+            deal_object = CarDealingList.show_selected_deal_by_id(info[2])
+
+            car_object = Car(deal_object[2])
+
+            print_color(f"{index}. refund id: {info[0]} --- seller: {user_object.username} --- dealing id: {info[2]} --- sell quantity: {info[3]} --- final refund price: {info[4]} --- profit: {info[5]}.", "m")
+
+            print_color(f"car brad: {car_object.car_brand} --- model: {car_object.car_model} --- deal time: {deal_object[5]}", "y")
+
+            print_color("-" * 40, "b")
+
+# -------------------- #
+
     @staticmethod
     def read_refund(path: str="refund"):
         data = ReadWriteData.read(path)
 
         return data
     
+# -------------------- #
+
     @staticmethod
     def write_refund(data, path: str="refund"):
         ReadWriteData.write(data, path)
+
+# -------------------- #
 
 
 # --------------------------------------------------------- #
@@ -270,6 +382,18 @@ class Car:
         result = db.select(query)
 
         return result[0]
+
+# -------------------- #
+
+    def update_quantity(self, quantity):
+
+        query = "update cars set quantity = %s where CarId = %s"
+
+        paramas = (quantity, self.car_id)
+
+        db = MySQLDB()
+
+        db.update_record(query, paramas)
 
 # -------------------- #
 
@@ -446,19 +570,26 @@ class Car:
         Car.write_car(car_data)
 # -------------------- #
 
-    staticmethod
-    def show_cars():
+    @staticmethod
+    def show_cars_admin():
         data = Car.select_all_cars()
 
-        index = 1
+        for index, car_info in enumerate(data, start=1):
+            print_color(f"{index}. car ID: {car_info[0]} --- brand: {car_info[1]} --- model: {car_info[2]} --- year: {car_info[3]} --- color: {car_info[4]} --- km: {car_info[5]} --- plate: {car_info[6]} --- quantity: {car_info[7]} --- buy price: '{car_info[8]}'$ --- sell price: '{car_info[9]}'$.", "m")
 
-        for car_info in data:
+            print_color("-" * 40, "b")
 
-            if car_info[7] > 0:
+# -------------------- #
 
-                print_color(f"{index}. Car ID: {car_info[0]} --- brand: {car_info[1]} --- model: {car_info[2]} --- color: {car_info[5]} --- year: {car_info[4]} --- plate: {car_info[6]} --- quantity: {car_info[7]} --- sell_price: '{car_info[9]}'$.", "m")
+    @staticmethod
+    def show_cars_user():
+        data = Car.select_all_cars()
 
-                index += 1
+        for index, car_info in enumerate(data, start=1):
+
+            if car_info[7]> 0:
+
+                print_color(f"{index}. car ID: {car_info[0]} --- brand: {car_info[1]} --- model: {car_info[2]} --- year: {car_info[3]} --- color: {car_info[4]} --- km: {car_info[5]} --- plate: {car_info[6]} --- quantity: {car_info[7]} --- price: '{car_info[9]}'$.", "m")
 
                 print_color("-" * 40, "b")
 
@@ -580,6 +711,32 @@ class User:
             db.update_record(admin_query, admin_params)
 
         db.close()
+
+# -------------------- #
+
+    def show_user_refunding(self):
+        RefundDealingList.show_selected_refunding(self.UserId)
+
+# -------------------- #
+
+    def charge_balance(self):
+        amount = input("\nPlease enter you balnce to deposite: ")
+
+        try:
+            self.update_balance(int(amount), "charge")
+
+        except Exception:
+            print_color("invalid input.")
+
+# -------------------- #
+
+    @classmethod
+    def create_user_by_id(cls, user_id):
+
+        user_data = cls.select_user_by_id(user_id)
+
+
+        return cls(user_data[1])
 
 # -------------------- #
 
@@ -757,7 +914,7 @@ class User:
 
     @staticmethod
     def show_cars():
-        Car.show_cars()
+        Car.show_cars_user()
 
 # -------------------- #
 
@@ -770,31 +927,6 @@ class User:
     @staticmethod
     def show_cars_sorted_by_brand():
         Car.sort_car_by_brand()
-
-# -------------------- #
-
-    @staticmethod
-    def show_refund_cars(username):
-        refund_data = RefundDealingList.read_refund()
-
-        flag = False
-
-        index = 1
-
-        for refund_id, refund_info in refund_data.items():
-
-            if username == refund_info["seller"]:
-
-                print_color(f"{index}. Refund Id: {refund_id} --- seller: {refund_info['seller']} --- deal id: {refund_info['dealing_id']} --- final refunded price: {refund_info['final_refund_price']}$ --- quantity: {refund_info['sell_quantity']} --- time refunded: {refund_info['time']}.", "m")
-
-                index += 1
-
-                print_color("-" * 40, "b")
-
-                flag = True
-
-        if not flag:
-            print_color("You dont have any refund dealing.")
 
 # -------------------- #
 
@@ -900,6 +1032,11 @@ class Admin(User):
 
 # -------------------- #
 
+    def show_cars(self):
+        Car.show_cars_admin()
+
+# -------------------- #
+
     def panel(self):
         print_color(f"Wellcome admin. '{self.username}' --- '{current_time}'.", "y")
         while True:
@@ -919,10 +1056,10 @@ class Admin(User):
                     self.edit_car()
                 
                 elif admin_option == "4":
-                    self.show_car_dealing_list()
+                    self.show_dealing_list()
                 
                 elif admin_option == "5":
-                    self.show_balance()
+                    self.current_balance()
                 
                 elif admin_option == "6":
                     self.show_cars_sorted_by_color()
@@ -938,24 +1075,6 @@ class Admin(User):
                     return None
             else:
                 print_color("Invalid input. Please try again.")
-# -------------------- #
-
-    @staticmethod
-    def show_cars():
-
-        print_color(f"This is quantity of Mh galery.", "y")
-        
-        car_data = Car.select_all_cars()
-
-        index = 1
-
-        for car_info in car_data:
-
-            print_color(f"{index}. Car ID: {car_info[0]} --- brand: {car_info[1]} --- model: {car_info[2]} --- color: {car_info[4]} --- year: {car_info[3]} --- plate: {car_info[6]} --- quantity: {car_info[7]} --- sell_price: '{car_info[9]}'$ --- buy_price: {car_info[8]}$.", "m")
-
-            index += 1
-
-            print_color("-" * 40, "b")
 
 # -------------------- #
 
@@ -977,17 +1096,7 @@ class Admin(User):
 
     @staticmethod
     def show_refund_cars():
-        refund_data = RefundDealingList.read_refund()
-
-        index = 1
-
-        for refund_id, refund_info in refund_data.items():
-
-            print_color(f"{index}. Refund Id: {refund_id} --- seller: {refund_info['seller']} --- deal id: {refund_info['dealing_id']} --- final refunded price: {refund_info['final_refund_price']}$ --- quantity: {refund_info['sell_quantity']} --- time refunded: {refund_info['time']} --- profit: {refund_info['profit']}.", "y")
-
-            index += 1
-
-            print_color("-" * 40, "b")
+        RefundDealingList.show_all_refunding()
 
 # -------------------- #
 
@@ -1082,67 +1191,47 @@ class BasicUser(User):
 
         print_color(f"you buy successfully new car. current balance: '{self.balance - amount}'$.", "g")
 
-        print_color(f"car id: {car_id} --- brand: {car_choosen.car_brand} --- model: {car_choosen.car_model} --- color: {car_choosen.car_color} --- quantity: {car_choosen.quantity} --- final_price: {amount}.", "c")
-
-# -------------------- #
-
-    def show_user_dealing(self):
-
-        dealing_data = CarDealingList.read_dealings()
-
-        flag = False
-
-        index = 1
-
-        user_deal_id = []
-
-        for dealing_id, dealing_info in dealing_data.items():
-
-                if self.username == dealing_info["buyer"] and dealing_info["quantity"] > 0:
-
-                    user_deal_id.append(dealing_id)
-
-                    print_color(f'{index}. deal id: {dealing_id} --- car id: {dealing_info["car_id"]} --- quantity: {dealing_info["quantity"]} --- final price: {dealing_info["final_price"]}$ --- time of dealing: {dealing_info["time"]}', "c")
-
-                    print_color(f"Brand: {dealing_info['car_information']['brand']} --- model: {dealing_info['car_information']['model']} --- color: {dealing_info['car_information']['color']} --- year: {dealing_info['car_information']['year']} --- km: {dealing_info['car_information']['km']} --- plate: {dealing_info['car_information']['plate']}", "c")
-
-                    index += 1
-
-                    flag = True
-
-                    print_color("-" * 40, "b")
-
-        if not flag:
-            print_color(f"{self.username} you dont have any dealing.")
-            return False
-
-        return user_deal_id
+        print_color(f"car id: {car_id} --- brand: {car_choosen.car_brand} --- model: {car_choosen.car_model} --- color: {car_choosen.car_color} --- quantity: {quantity} --- final_price: {amount}.", "c")
 
 # -------------------- #
 
     def refund(self):
 
-        user_cars = self.show_user_dealing()
+        show_cars = self.show_dealing_list()
 
-        refund_data = RefundDealingList.read_refund()
+        user_dealing = CarDealingList.select_choosen_deal(self.UserId)
 
-        dealing_data = CarDealingList.read_dealings()
+        all_dealing = []
 
-        car_data = Car.read_car()
+        for dealing_info in user_dealing:
+            all_dealing.append(dealing_info[0])
 
-
-        if user_cars:
+        if all_dealing:
             
             print_color("Here you are this list is your dealing.", "c")
 
 
             while True:
-
-                user_refund_id = input("\nPlease enter your car id for refund: ")
                 
-                if user_refund_id in user_cars:
+                try:
+
+                    user_refund_id = int(input("\nPlease enter your car id for refund: "))
+
+                except ValueError:
+                    print_color("please enter valid number.")
+                    continue
+                
+                if user_refund_id in all_dealing:
 
                     print_color(f"You choose {user_refund_id}.", "g")
+
+                    dealing_info = CarDealingList.show_selected_deal_by_id(user_refund_id)
+
+                    dealing_quantity = dealing_info[3]
+
+                    car_object = Car(dealing_info[2])
+
+                    print_color(f"car brand: {car_object.car_brand} --- model: {car_object.car_model} --- color: {car_object.car_color} --- price: '{car_object.car_sell_price}'$.", "c")
 
 
                     while True:
@@ -1167,9 +1256,6 @@ class BasicUser(User):
                     print_color("Invalid input. Please enter valid input.")
 
             
-            user_dealing_data = dealing_data[user_refund_id]
-
-            
             while True:
 
                 try: 
@@ -1177,18 +1263,17 @@ class BasicUser(User):
 
                 except ValueError:
                     print_color("You must enter integer number !")
+                    continue
 
-                if quantity < user_dealing_data["quantity"]:
+                if quantity < dealing_quantity:
 
-                    print_color(f"You are funding '{quantity}' of {user_dealing_data['quantity']}.", "g")
+                    print_color(f"You are funding '{quantity}' of {dealing_quantity}.", "g")
 
                     break
 
-                elif quantity == user_dealing_data["quantity"]:
+                elif quantity == dealing_quantity:
 
                     print_color(f"You sold out all car you have with id: {user_refund_id}.", "g")
-
-                    delet_data_flag = True
 
                     break
 
@@ -1198,42 +1283,28 @@ class BasicUser(User):
                     print_color("You cant refund more than you have. Please focus a bit more.")
 
 
-            one_car_price = user_dealing_data["final_price"] / user_dealing_data["quantity"]
+            final_refund_price = (car_object.car_sell_price * quantity) * 0.9
 
-            final_refund_price = (one_car_price * quantity) * 0.9
+            refund_profit = (car_object.car_sell_price * quantity) * 0.1
 
-            refunded_car_id = user_dealing_data["car_id"]
+            refunded_car_id = dealing_info[2]
 
-            car_data[refunded_car_id]["quantity"] += quantity 
+            car_object.quantity += quantity 
 
                 
-            dealing_data[user_refund_id]["quantity"] -= quantity
+            dealing_quantity -= quantity
 
-            dealing_data[user_refund_id]["final_price"] = one_car_price * (user_dealing_data["quantity"])
+            dealing_final_price = car_object.car_sell_price * dealing_quantity
 
 
-            self.change_balance(amount= final_refund_price, mode="sell")
+            self.update_balance(amount= final_refund_price, mode="sell")
 
-            CarDealingList.write_dealings(dealing_data)
-            Car.write_car(car_data)
+            CarDealingList.update_dealing(dealing_info[0], dealing_quantity, dealing_final_price)
+            car_object.update_quantity(car_object.quantity)
 
-            if refund_data :
-                max_id = max([int(cid) for cid in refund_data.keys()])
-                refund_id = str(max_id + 1)
+            RefundDealingList.creat_new_refunding(self.UserId, dealing_info[0], quantity, final_refund_price, refund_profit)
 
-            else:
-                refund_id = "300301"
-
-            refund_data[refund_id] = {
-                "seller" : self.username,
-                "dealing_id" : user_refund_id,
-                "time" : current_time,
-                "sell_quantity" : quantity,
-                "final_refund_price" : final_refund_price,
-                "profit" : one_car_price * quantity * 0.1
-            }
-
-            RefundDealingList.write_refund(refund_data)
+            print_color("You Refunded car successfully.", "g")
             
 # -------------------- #
 
@@ -1253,13 +1324,13 @@ class BasicUser(User):
                     self.buy_car()
                 
                 elif user_option == "3":
-                    self.show_user_dealing()
+                    self.show_dealing_list()
                 
                 elif user_option == "4":
                     self.refund()
                 
                 elif user_option == "5":
-                    self.show_refund_cars(self.username)
+                    self.show_user_refunding()
                 
                 elif user_option == "6":
                     self.show_cars_sorted_by_color()
@@ -1268,34 +1339,17 @@ class BasicUser(User):
                     self.show_cars_sorted_by_brand()
 
                 elif user_option == "8":
-                    self.show_balance()
+                    self.current_balance()
 
                 elif user_option == "9":
-                    self.charg_balance()
+                    self.charge_balance()
                 
                 elif user_option == "10":
                     print_color("log out successfully.", "g")
-                    return None
+                    return False
             else:
                 print_color("Invalid input. Please try again.")
 
 # -------------------- #
 
 # --------------------------------------------------------- #
-
-
-# bmw = Car(100104)
-
-# bmw.sort_car_by_brand()
-
-mh = Admin("mhghasri")
-
-# mh.show_cars()
-
-ali = BasicUser("alinorouzi")
-
-# ali.buy_car()
-
-# CarDealingList.show_all_deal()
-
-# CarDealingList.show_selected_deal(2)
